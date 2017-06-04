@@ -1,0 +1,32 @@
+{
+  "name": "pokecheck",
+  "version": "1.0.0",
+  "description": "Pokecheck for Mark",
+  "main": "server/index.js",
+  "bin": {
+    "pokecheck": "client-serve.js"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w & nodemon --watch server server/index.js & bin/client-serve.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/tnguyen14/pokecheck.git"
+  },
+  "author": "Tri Nguyen <tri@tridnguyen.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tnguyen14/pokecheck/issues"
+  },
+  "homepage": "https://github.com/tnguyen14/pokecheck#readme",
+  "dependencies": {
+    "express": "^4.15.3"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0",
+    "rollup": "^0.42.0",
+    "rollup-watch": "^3.2.2"
+  }
+}
