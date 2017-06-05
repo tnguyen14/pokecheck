@@ -27,5 +27,5 @@ async function getPokemons (numPokemons) {
 getPokemons(NUM_POKEMONS).then((pokemons) => {
 	pokemons.forEach((pokemon) => {
 		appEl.appendChild(createPokemonEl(pokemon));
-	})
+	});
 });
