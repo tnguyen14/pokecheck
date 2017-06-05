@@ -1,0 +1,17 @@
+version: "3"
+services:
+  server:
+    build: .
+    links:
+     - db
+
+  client:
+    build:
+      dockerfile: Dockerfile.client
+      context: .
+
+  db:
+    build:
+      dockerfile: Dockerfile.db
+      volumes:
+       - ./db:/app/db

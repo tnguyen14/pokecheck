@@ -1,0 +1,16 @@
+FROM mhart/alpine-node:8
+
+RUN mkdir /app
+
+RUN npm install -g pouchdb-server
+
+WORKDIR /app
+
+COPY db/config.json /app/db/
+
+EXPOSE 5984
+
+VOLUME /app/db
+
+CMD ["npm", "run", "db"]
+

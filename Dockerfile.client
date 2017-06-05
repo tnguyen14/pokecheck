@@ -1,0 +1,16 @@
+FROM mhart/alpine-node:8
+
+COPY package.json /src/
+COPY package-lock.json /src/
+
+WORKDIR /src
+
+RUN npm install
+
+COPY . /src/
+
+RUN npm run build
+
+EXPOSE 9000
+
+CMD ["bin/client-serve.js"]

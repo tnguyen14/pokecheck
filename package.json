@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Pokecheck for Mark",
   "main": "server/index.js",
-  "bin": {
-    "pokecheck": "client-serve.js"
-  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w & bin/client-serve.js & nodemon --watch server server/index.js",
@@ -37,6 +34,7 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "nodemon": "^1.11.0",
+    "pm2": "^2.4.6",
     "rollup": "^0.42.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2"
