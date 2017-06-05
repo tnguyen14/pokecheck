@@ -28,10 +28,10 @@
     "express-pouchdb": "^2.3.7",
     "node-fetch": "^1.7.1",
     "pouchdb": "^6.2.0",
-    "pouchdb-server": "^2.3.7",
-    "preact": "^8.1.0"
+    "pouchdb-server": "^2.3.7"
   },
   "devDependencies": {
+    "eslint": "^3.19.0",
     "nodemon": "^1.11.0",
     "rollup": "^0.42.0",
     "rollup-plugin-node-resolve": "^3.0.0",
