@@ -15,7 +15,6 @@ const db = new PouchDB('http://localhost:5984/pokemons');
 
 async function saveSprites (pokemon) {
 	if (!pokemon.sprites) {
-		console.log('no sprites');
 		return;
 	}
 	await Object.keys(pokemon.sprites).forEach(async (type) => {

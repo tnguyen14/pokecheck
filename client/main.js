@@ -1,21 +1,26 @@
-/* global fetch */
-
 const SERVER_URL = 'http://localhost:3000';
 const NUM_POKEMONS = 10;
 
 const appEl = document.querySelector('#app');
+const pokemonsEl = document.createElement('div');
+pokemonsEl.classList.add('pokemons');
+appEl.appendChild(pokemonsEl);
 
 function createPokemonEl (pokemon) {
 	let el = document.createElement('div');
 	el.classList.add('pokemon');
 	let name = document.createElement('div');
+	name.classList.add('name');
 	name.innerHTML = pokemon.name;
 	el.appendChild(name);
 
 	if (pokemon.sprites && pokemon.sprites.front_default) {
+		let images = document.createElement('div');
+		images.classList.add('images');
 		let image = document.createElement('img');
 		image.src = `${SERVER_URL}/sprites/${pokemon.id}/front_default`;
-		el.appendChild(image);
+		images.appendChild(image);
+		el.appendChild(images);
 	}
 	return el;
 }
@@ -32,6 +37,6 @@ async function getPokemons (numPokemons) {
 // display each pokemon
 getPokemons(NUM_POKEMONS).then((pokemons) => {
 	pokemons.forEach((pokemon) => {
-		appEl.appendChild(createPokemonEl(pokemon));
+		pokemonsEl.appendChild(createPokemonEl(pokemon));
 	});
 });

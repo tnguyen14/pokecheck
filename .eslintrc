@@ -3,5 +3,8 @@
 		"ecmaVersion": 2017,
 		"sourceType": "module"
 	},
-	"extends": "happiness"
+	"extends": "happiness",
+	"globals": {
+		"fetch": true
+	}
 }
