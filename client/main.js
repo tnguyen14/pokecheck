@@ -11,6 +11,12 @@ function createPokemonEl (pokemon) {
 	let name = document.createElement('div');
 	name.innerHTML = pokemon.name;
 	el.appendChild(name);
+
+	if (pokemon.sprites && pokemon.sprites.front_default) {
+		let image = document.createElement('img');
+		image.src = `${SERVER_URL}/sprites/${pokemon.id}/front_default`;
+		el.appendChild(image);
+	}
 	return el;
 }
 

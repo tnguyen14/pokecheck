@@ -63,13 +63,15 @@ app.get('/pokemon/:id', async (req, res) => {
 });
 
 app.get('/sprites/:pokemon/:type', async (req, res) => {
-	let filePath = `./db/sprites/${req.params.pokemon}/${req.params.type}`;
+	let filePath = `./db/sprites/${req.params.pokemon}/${req.params.type}.png`;
 	let exists = await fse.pathExists(filePath);
 	if (!exists) {
-		res.send(404);
+		res.sendStatus(404);
 		return;
 	}
-	req.sendFile(filePath);
+	res.sendFile(filePath, {
+		root: process.cwd()
+	});
 });
 
 app.listen(SERVER_PORT, () => {
