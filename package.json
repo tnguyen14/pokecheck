@@ -8,7 +8,8 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w & nodemon --watch server server/index.js & bin/client-serve.js",
+    "dev": "rollup -c -w & bin/client-serve.js & nodemon --watch server server/index.js",
+    "db": "pouchdb-server -d db -c db/config.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,11 +23,18 @@
   },
   "homepage": "https://github.com/tnguyen14/pokecheck#readme",
   "dependencies": {
-    "express": "^4.15.3"
+    "cors": "^2.8.3",
+    "express": "^4.15.3",
+    "express-pouchdb": "^2.3.7",
+    "node-fetch": "^1.7.1",
+    "pouchdb": "^6.2.0",
+    "pouchdb-server": "^2.3.7",
+    "preact": "^8.1.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0",
     "rollup": "^0.42.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2"
   }
 }

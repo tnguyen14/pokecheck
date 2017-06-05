@@ -1,2 +1,7 @@
 node_modules
 public/build
+
+# ignore everything in db folder, except for db/config.json
+!db/
+db/*
+!db/config.json
