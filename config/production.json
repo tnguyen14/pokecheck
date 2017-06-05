@@ -1,0 +1,5 @@
+{
+	"CLIENT_URL": "https://lab.tridnguyen.com/pokecheck",
+	"SERVER_URL": "https://api.tridnguyen.com/pokecheck",
+	"DATABASE_URL": "http://db:5984"
+}

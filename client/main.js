@@ -1,4 +1,5 @@
-const SERVER_URL = 'http://localhost:3000';
+const config = require('config');
+const SERVER_URL = config.get('SERVER_URL');
 const NUM_POKEMONS = 10;
 
 const appEl = document.querySelector('#app');

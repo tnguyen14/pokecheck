@@ -3,15 +3,16 @@ const cors = require('cors');
 const PouchDB = require('pouchdb');
 const fetch = require('node-fetch');
 const fse = require('fs-extra');
+const config = require('config');
 const app = express();
 const SERVER_PORT = process.env.PORT || 3000;
 const POKEAPI_URL = 'http://pokeapi.co/api/v2/';
 
 app.use(cors({
-	origin: 'http://localhost:9000'
+	origin: config.get('CLIENT_URL')
 }));
 
-const db = new PouchDB('http://localhost:5984/pokemons');
+const db = new PouchDB(config.get('DATABASE_URL') + '/pokemons');
 
 async function saveSprites (pokemon) {
 	if (!pokemon.sprites) {
