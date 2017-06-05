@@ -1,4 +1,7 @@
 {
+  "couchdb": {
+    "database_dir": "./db"
+  },
   "log": {
     "file": "./db/log.txt"
   }

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w & bin/client-serve.js & nodemon --watch server server/index.js",
-    "db": "pouchdb-server -d db -c db/config.json",
+    "db": "pouchdb-server -c db/config.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
