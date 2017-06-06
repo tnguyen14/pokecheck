@@ -2,9 +2,9 @@ FROM mhart/alpine-node:8
 
 RUN mkdir /app
 
-RUN npm install -g pouchdb-server
-
 WORKDIR /app
+
+RUN npm install -g pouchdb-server
 
 COPY db/config.json /app/db/
 
@@ -12,5 +12,5 @@ EXPOSE 5984
 
 VOLUME /app/db
 
-CMD ["npm", "run", "db"]
+CMD ["./node_modules/.bin/pouchdb-server", "-c", "db/config.json"]
 
