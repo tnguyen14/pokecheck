@@ -6,7 +6,7 @@ COPY package-lock.json /src/
 WORKDIR /src
 RUN npm install
 
-COPY server /src/
+ADD server /src/server
 
 EXPOSE 3000
 
