@@ -4,7 +4,7 @@
 import defaultConfig from '../config/default.json';
 import productionConfig from '../config/production.json';
 let SERVER_URL = defaultConfig.SERVER_URL;
-if (window.location.href.indexOf('https://lab.tridnguyen.com' === 0)) {
+if (window.location.href.indexOf('https://lab.tridnguyen.com') === 0) {
 	SERVER_URL = productionConfig.SERVER_URL;
 }
 const NUM_POKEMONS = 10;
