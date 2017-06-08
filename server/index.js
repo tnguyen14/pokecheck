@@ -9,7 +9,7 @@ const SERVER_PORT = process.env.PORT || 3000;
 const POKEAPI_URL = 'http://pokeapi.co/api/v2/';
 
 app.use(cors({
-	origin: config.get('CLIENT_URL')
+	origin: config.get('CLIENT_DOMAIN')
 }));
 
 const db = new PouchDB(config.get('DATABASE_URL') + '/pokemons');
