@@ -1,5 +1,12 @@
-const config = require('config');
-const SERVER_URL = config.get('SERVER_URL');
+// config is not working with browser bundle right now,
+// see https://github.com/lorenwest/node-config/issues/345
+// trying to replicate it manually for now
+import defaultConfig from '../config/default.json';
+import productionConfig from '../config/production.json';
+let SERVER_URL = defaultConfig.SERVER_URL;
+if (window.location.href.indexOf('https://lab.tridnguyen.com' === 0)) {
+	SERVER_URL = productionConfig.SERVER_URL;
+}
 const NUM_POKEMONS = 10;
 
 const appEl = document.querySelector('#app');
