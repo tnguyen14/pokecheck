@@ -3,9 +3,13 @@
 // trying to replicate it manually for now
 import defaultConfig from '../config/default.json';
 import productionConfig from '../config/production.json';
+import homeConfig from '../config/home.json';
+
 let SERVER_URL = defaultConfig.SERVER_URL;
-if (window.location.href.indexOf('https://lab.tridnguyen.com') === 0) {
+if (window.location.origin === 'https://lab.tridnguyen.com') {
 	SERVER_URL = productionConfig.SERVER_URL;
+} else if (window.location.origin === 'http://173.56.227.43:9000') {
+	SERVER_URL = homeConfig.SERVER_URL;
 }
 const NUM_POKEMONS = 10;
 
@@ -48,3 +52,4 @@ getPokemons(NUM_POKEMONS).then((pokemons) => {
 		pokemonsEl.appendChild(createPokemonEl(pokemon));
 	});
 });
+
