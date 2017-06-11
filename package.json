@@ -26,6 +26,7 @@
     "express": "^4.15.3",
     "express-pouchdb": "^2.3.7",
     "fs-extra": "^3.0.1",
+    "navigo": "^5.1.0",
     "node-fetch": "^1.7.1",
     "pouchdb": "^6.2.0",
     "pouchdb-server": "^2.3.7"

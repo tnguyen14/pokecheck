@@ -13,6 +13,7 @@ app.use(cors({
 }));
 
 const db = new PouchDB(config.get('DATABASE_URL') + '/pokemons');
+const usersDb = new PouchDB(config.get('DATABASE_URL') + '/users');
 
 async function saveSprites (pokemon) {
 	if (!pokemon.sprites) {
@@ -72,6 +73,46 @@ app.get('/sprites/:pokemon/:type', async (req, res) => {
 	res.sendFile(filePath, {
 		root: process.cwd()
 	});
+});
+
+app.get('/users', async(req, res) => {
+	let users;
+	try {
+		users = await usersDb.allDocs();
+		res.json(users);
+	} catch (e) {
+		res.status(400).json(e);
+	}
+});
+
+app.get('/users/:id', async (req, res) => {
+	let user;
+	try {
+		user = await usersDb.get(req.params.id);
+		res.json(user);
+	} catch (e) {
+		console.error(e);
+		res.status(404).json({
+			error: `User ${req.params.id} is not found`
+		});
+	}
+});
+
+app.put('/users/:id', async (req, res) => {
+	let user = {
+		_id: req.params.id
+	};
+
+	user.pokemons = req.params.pokemons;
+	let response;
+	try {
+		response = await usersDb.put(user);
+		if (response.ok) {
+			res.send(response);
+		}
+	} catch (e) {
+		res.send(400).json(e);
+	}
 });
 
 app.listen(SERVER_PORT, () => {

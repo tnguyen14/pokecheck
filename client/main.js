@@ -4,12 +4,18 @@
 import defaultConfig from '../config/default.json';
 import productionConfig from '../config/production.json';
 import homeConfig from '../config/home.json';
+import Navigo from 'navigo';
 
 let SERVER_URL = defaultConfig.SERVER_URL;
+let root = defaultConfig.CLIENT_DOMAIN;
+
 if (window.location.origin === 'https://lab.tridnguyen.com') {
 	SERVER_URL = productionConfig.SERVER_URL;
+	root = productionConfig.CLIENT_DOMAIN + '/pokecheck';
 } else if (window.location.origin === 'http://173.56.227.43:9000') {
 	SERVER_URL = homeConfig.SERVER_URL;
+	// root = homeConfig.CLIENT_DOMAIN + '/pokecheck';
+	root = homeConfig.CLIENT_DOMAIN;
 }
 const NUM_POKEMONS = 10;
 
@@ -17,6 +23,16 @@ const appEl = document.querySelector('#app');
 const pokemonsEl = document.createElement('div');
 pokemonsEl.classList.add('pokemons');
 appEl.appendChild(pokemonsEl);
+
+let router = new Navigo(root);
+
+router.on({
+	'/:userId': async (params) => {
+		let response = await fetch(SERVER_URL + '/users/' + params.userId);
+		let user = await response.json();
+		console.log(user);
+	}
+}).resolve();
 
 function createPokemonEl (pokemon) {
 	let el = document.createElement('div');
