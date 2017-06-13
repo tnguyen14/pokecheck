@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w & bin/client-serve.js & nodemon --watch server server/index.js",
+    "dev:client": "rollup -c -w & bin/client-serve.js",
+    "dev:server": "nodemon --watch server server/index.js",
     "db": "pouchdb-server -c db/config.json",
     "lint": "eslint .",
     "start": "pm2 start server/index.js && pm2 logs"
