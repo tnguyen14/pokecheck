@@ -25,31 +25,87 @@ appEl.appendChild(pokemonsEl);
 
 let router = new Navigo(root);
 
-router.on({
-	'/:userId': async (params) => {
-		let response = await fetch(SERVER_URL + '/users/' + params.userId);
-		let user = await response.json();
-		console.log(user);
-	}
-}).resolve();
+let userId;
 
-function createPokemonEl (pokemon) {
-	let el = document.createElement('div');
-	el.classList.add('pokemon');
-	let name = document.createElement('div');
-	name.classList.add('name');
-	name.innerHTML = pokemon.name;
-	el.appendChild(name);
+router
+	.on({
+		'/:userId': async (params) => {
+			userId = params.userId;
+		}
+	})
+	.resolve();
 
-	if (pokemon.sprites && pokemon.sprites.front_default) {
-		let images = document.createElement('div');
-		images.classList.add('images');
-		let image = document.createElement('img');
-		image.src = `${SERVER_URL}/sprites/${pokemon.id}/front_default`;
-		images.appendChild(image);
-		el.appendChild(images);
+async function getUser (userId) {
+	if (!userId) {
+		return Promise.resolve();
 	}
+	let response = await fetch(SERVER_URL + '/users/' + userId);
+	return response.json();
+}
+
+function renderPokemon (pokemon) {
+	const imageForms = ['front_default', 'front_female'];
+	let el = document.querySelector(`[data-pokemon="${pokemon.name}"]`);
+	if (!el) {
+		el = document.createElement('div');
+		el.classList.add('pokemon');
+		el.setAttribute('data-pokemon', pokemon.name);
+	}
+	let nameEl = el.querySelector('.name');
+	if (!nameEl) {
+		nameEl = document.createElement('div');
+		nameEl.classList.add('name');
+		el.appendChild(nameEl);
+		nameEl.innerHTML = pokemon.name;
+	}
+	if (pokemon.name !== nameEl.innerHTML) {
+		nameEl.innerHTML = pokemon.name;
+	}
+
+	let imagesEl = el.querySelector('.images');
+	if (!imagesEl) {
+		imagesEl = document.createElement('div');
+		imagesEl.classList.add('images');
+		el.appendChild(imagesEl);
+	}
+	if (!pokemon.sprites) {
+		return el;
+	}
+	imageForms.forEach((imageForm) => {
+		if (!pokemon.sprites[imageForm]) {
+			return;
+		}
+		let imageEl = imagesEl.querySelector(`[data-form="${imageForm}"]`);
+		if (!imageEl) {
+			imageEl = document.createElement('img');
+			imageEl.setAttribute('data-form', imageForm);
+			imageEl.src = `${SERVER_URL}/sprites/${pokemon.id}/${imageForm}`;
+			imagesEl.appendChild(imageEl);
+		}
+	});
 	return el;
+}
+
+function renderPokemons (pokemons, rootEl) {
+	pokemons.forEach((pokemon) => {
+		rootEl.appendChild(renderPokemon(pokemon));
+	});
+}
+
+function processOwnership (user) {
+	const forms = ['default', 'shiny', 'female', 'shiny_female'];
+	if (!user.ownership) {
+		return;
+	}
+	Object.keys(user.ownership).forEach((pokemon) => {
+		const pokemonEl = document.querySelector(`[data-pokemon="${pokemon}"]`);
+		pokemonEl.classList.add('owned');
+		forms.forEach((form) => {
+			if (pokemon[form]) {
+				pokemonEl.classList.add(form);
+			}
+		});
+	});
 }
 
 async function getPokemons (numPokemons) {
@@ -61,10 +117,20 @@ async function getPokemons (numPokemons) {
 	}));
 }
 
-// display each pokemon
-getPokemons(NUM_POKEMONS).then((pokemons) => {
-	pokemons.forEach((pokemon) => {
-		pokemonsEl.appendChild(createPokemonEl(pokemon));
-	});
-});
+async function start () {
+	let results = await Promise.all([
+		getPokemons(NUM_POKEMONS),
+		getUser(userId)
+	]);
 
+	// results[0] is pokemons
+	renderPokemons(results[0], pokemonsEl);
+
+	// if not userId (home page?)
+	if (!results[1]) {
+		return;
+	}
+	processOwnership(results[1]);
+}
+
+start();
