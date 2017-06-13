@@ -12,10 +12,9 @@ let root = defaultConfig.CLIENT_DOMAIN;
 if (window.location.origin === 'https://lab.tridnguyen.com') {
 	SERVER_URL = productionConfig.SERVER_URL;
 	root = productionConfig.CLIENT_DOMAIN + '/pokecheck';
-} else if (window.location.origin === 'http://173.56.227.43:9000') {
+} else if (window.location.origin === 'https://lab.home.tridnguyen.com') {
 	SERVER_URL = homeConfig.SERVER_URL;
-	// root = homeConfig.CLIENT_DOMAIN + '/pokecheck';
-	root = homeConfig.CLIENT_DOMAIN;
+	root = homeConfig.CLIENT_DOMAIN + '/pokecheck';
 }
 const NUM_POKEMONS = 10;
 

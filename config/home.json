@@ -1,4 +1,4 @@
 {
-	"CLIENT_DOMAIN": "http://173.56.227.43:9000",
-	"SERVER_URL": "http://173.56.227.43:3000"
+	"CLIENT_DOMAIN": "https://lab.home.tridnguyen.com",
+	"SERVER_URL": "https://api.home.tridnguyen.com/pokecheck"
 }
