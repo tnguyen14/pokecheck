@@ -40,6 +40,9 @@ body {
 	max-width: 100%;
 	height: auto;
 }
+.pokemon img:hover {
+	filter: grayscale(50%);
+}
 .pokemon.owned img {
 	filter: sepia(100%);
 }
