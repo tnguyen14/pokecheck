@@ -75,6 +75,10 @@ function renderOwnerships (userOwnership, rootEl) {
 		forms.forEach((form) => {
 			if (userOwnership[pokemon].contains(form)) {
 				pokemonEl.classList.add(form);
+			} else {
+				if (pokemonEl.classList.contains(form)) {
+					pokemonEl.classList.remove(form);
+				}
 			}
 		});
 	});
