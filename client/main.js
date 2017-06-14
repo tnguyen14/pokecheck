@@ -22,14 +22,6 @@ let router = new Navigo(root);
 
 let userId;
 
-router
-	.on({
-		'/:userId': async (params) => {
-			userId = params.userId;
-		}
-	})
-	.resolve();
-
 async function getUser (userId) {
 	if (!userId) {
 		return Promise.resolve();
@@ -73,11 +65,12 @@ function renderOwnerships (userOwnership, rootEl) {
 		}
 		pokemonEl.classList.add('owned');
 		forms.forEach((form) => {
-			if (userOwnership[pokemon].contains(form)) {
-				pokemonEl.classList.add(form);
+			let clx = `has-${form}`;
+			if (userOwnership[pokemon].includes(form)) {
+				pokemonEl.classList.add(clx);
 			} else {
-				if (pokemonEl.classList.contains(form)) {
-					pokemonEl.classList.remove(form);
+				if (pokemonEl.classList.contains(clx)) {
+					pokemonEl.classList.remove(clx);
 				}
 			}
 		});
@@ -133,6 +126,14 @@ async function getPokemons (numPokemons) {
 }
 
 async function start () {
+	router
+		.on({
+			'/:userId': (params) => {
+				userId = params.userId;
+			}
+		})
+		.resolve();
+
 	let results = await Promise.all([
 		getPokemons(NUM_POKEMONS),
 		getUser(userId)
