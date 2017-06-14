@@ -107,7 +107,10 @@ function renderPokemon (pokemon) {
 		classList = classList.concat(generateClassList(user.ownership));
 	}
 
-	morphdom(el, `<div class="${classList.join(' ')}" data-pokemon="${pokemon.name}">
+	morphdom(el, `<div 
+		class="${classList.join(' ')}"
+		data-pokemon="${pokemon.name}"
+		title="${pokemon.id}">
 		<div class="name">
 			${pokemon.name}
 		</div>
