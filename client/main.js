@@ -6,6 +6,7 @@ import productionConfig from '../config/production.json';
 import homeConfig from '../config/home.json';
 import Navigo from 'navigo';
 import morphdom from 'morphdom';
+import deepClone from 'deep-clone';
 
 let SERVER_URL = defaultConfig.SERVER_URL;
 let root = defaultConfig.CLIENT_DOMAIN;
@@ -22,6 +23,7 @@ const NUM_POKEMONS = 10;
 let router = new Navigo(root);
 
 let userId;
+let user;
 
 async function getUser (userId) {
 	if (!userId) {
@@ -81,9 +83,50 @@ function renderPokemon (pokemon) {
 	Array.prototype.forEach.call(el.querySelectorAll('img'), (img) => {
 		img.addEventListener('click', updateOwn);
 	});
-	function updateOwn (e) {
+	async function updateOwn (e) {
+		if (!user) {
+			return;
+		}
 		let imageEl = e.target.parentNode;
-		imageEl.classList.toggle('loading');
+		imageEl.classList.add('loading');
+		let imageForm = e.target.getAttribute('data-form');
+		let form = imageForm.split('_')[1];
+		if (!form) {
+			throw new Error('No form found');
+		}
+		if (!user.ownership) {
+			user.ownership = {};
+		}
+		let prevOwnership = deepClone(user.ownership[pokemon.name]);
+		if (!prevOwnership) {
+			user.ownership[pokemon.name] = [form];
+		} else {
+			let hasForm = user.ownership[pokemon.name].findIndex((ownedForm) => {
+				return ownedForm === form;
+			});
+			// if form does not exist
+			if (hasForm === -1) {
+				user.ownership[pokemon.name].push(form);
+			} else {
+				user.ownership[pokemon.name].splice(hasForm, 1);
+			}
+		}
+		try {
+			await fetch(`${SERVER_URL}/users/${userId}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(user)
+			});
+		} catch (e) {
+			console.error(e);
+			// reverting changes
+			user.ownership[pokemon.name] = prevOwnership;
+		}
+		imageEl.classList.remove('loading');
+		// @TODO instead of querySelector again, use emit render in choo
+		updateOwnerships(user.ownership, document.querySelector('.pokemons'));
 	}
 
 	return el;
@@ -136,7 +179,10 @@ async function start () {
 		return;
 	}
 
-	updateOwnerships(results[1].ownership, pokemonsEl);
+	user = results[1];
+	if (user.ownership) {
+		updateOwnerships(user.ownership, pokemonsEl);
+	}
 }
 
 start();

@@ -25,6 +25,7 @@
     "body-parser": "^1.17.2",
     "config": "^1.26.1",
     "cors": "^2.8.3",
+    "deep-clone": "^3.0.2",
     "express": "^4.15.3",
     "express-pouchdb": "^2.3.7",
     "fs-extra": "^3.0.1",
