@@ -128,7 +128,7 @@ function renderPokemon (pokemon) {
 	return el;
 }
 
-function renderPokemons (pokemons) {
+async function getPokemons (numPokemons) {
 	const appEl = document.querySelector('#app');
 	let pokemonsEl = appEl.querySelector('.pokemons');
 	if (!pokemonsEl) {
@@ -137,7 +137,15 @@ function renderPokemons (pokemons) {
 		appEl.appendChild(pokemonsEl);
 	}
 
-	pokemons.forEach((pokemon) => {
+	// make array of number from 1 - NUM_POKEMONS
+	// fetch all pokemons in parallel
+	// then display them one by one
+	return Array.from(new Array(numPokemons), (val, index) => index + 1).map(async (index) => {
+		let response = await fetch(SERVER_URL + '/pokemon/' + index);
+		return response.json();
+	}).reduce(async (prevFetch, jsonResponse) => {
+		await prevFetch;
+		let pokemon = await jsonResponse;
 		let pokemonEl = renderPokemon(pokemon);
 		pokemonsEl.appendChild(pokemonEl);
 
@@ -146,17 +154,7 @@ function renderPokemons (pokemons) {
 		Array.prototype.forEach.call(pokemonEl.querySelectorAll('img'), (img) => {
 			img.addEventListener('click', imageClickHandler.bind(img, pokemon));
 		});
-	});
-	return pokemonsEl;
-}
-
-async function getPokemons (numPokemons) {
-	// make array of number from 1 - NUM_POKEMONS
-	return await Promise.all(Array.from(new Array(numPokemons), (val, index) => index + 1).map(async (index) => {
-		let response = await fetch(SERVER_URL + '/pokemon/' + index);
-		let pokemon = await response.json();
-		return pokemon;
-	}));
+	}, Promise.resolve());
 }
 
 async function start () {
@@ -168,18 +166,13 @@ async function start () {
 		})
 		.resolve();
 
-	let results = await Promise.all([
-		getUser(userId),
-		getPokemons(NUM_POKEMONS)
-	]);
-
-	if (results[0]) {
-		user = results[0];
+	try {
+		user = await getUser(userId);
+	} catch (e) {
+		console.error(e);
 	}
 
-	let pokemons = results[1];
-
-	renderPokemons(pokemons);
+	await getPokemons(NUM_POKEMONS);
 }
 
 start();
