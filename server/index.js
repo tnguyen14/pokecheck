@@ -4,6 +4,7 @@ const PouchDB = require('pouchdb');
 const fetch = require('node-fetch');
 const fse = require('fs-extra');
 const config = require('config');
+const bodyParser = require('body-parser');
 const app = express();
 const SERVER_PORT = process.env.PORT || 3000;
 const POKEAPI_URL = 'http://pokeapi.co/api/v2/';
@@ -11,6 +12,8 @@ const POKEAPI_URL = 'http://pokeapi.co/api/v2/';
 app.use(cors({
 	origin: config.get('CLIENT_DOMAIN')
 }));
+
+app.use(bodyParser.json());
 
 const db = new PouchDB(config.get('DATABASE_URL') + '/pokemons');
 const usersDb = new PouchDB(config.get('DATABASE_URL') + '/users');
@@ -103,7 +106,14 @@ app.put('/users/:id', async (req, res) => {
 		_id: req.params.id
 	};
 
-	user.pokemons = req.params.pokemons;
+	user.ownership = req.body.ownership;
+	let existingUser;
+	try {
+		existingUser = await usersDb.get(user._id);
+		user._rev = existingUser._rev;
+	} catch (e) {
+		console.log(`User ${user._id} does not exist. Creating...`);
+	}
 	let response;
 	try {
 		response = await usersDb.put(user);
@@ -111,7 +121,7 @@ app.put('/users/:id', async (req, res) => {
 			res.send(response);
 		}
 	} catch (e) {
-		res.send(400).json(e);
+		res.status(400).json(e);
 	}
 });
 
