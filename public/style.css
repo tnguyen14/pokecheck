@@ -26,5 +26,24 @@ body {
 }
 
 .pokemon .images {
+	display: flex;
 	padding: 1em 0;
+}
+
+.pokemon .image {
+	flex-grow: 1;
+}
+.pokemon img {
+	filter: grayscale(100%);
+	max-width: 100%;
+	height: auto;
+}
+.pokemon.owned img {
+	filter: sepia(100%);
+}
+.pokemon.has-default [data-form=front_default] {
+	filter: none;
+}
+.pokemon.has-female [data-form=front_female] {
+	filter: none;
 }
