@@ -18,11 +18,6 @@ if (window.location.origin === 'https://lab.tridnguyen.com') {
 }
 const NUM_POKEMONS = 10;
 
-const appEl = document.querySelector('#app');
-const pokemonsEl = document.createElement('div');
-pokemonsEl.classList.add('pokemons');
-appEl.appendChild(pokemonsEl);
-
 let router = new Navigo(root);
 
 let userId;
@@ -43,8 +38,49 @@ async function getUser (userId) {
 	return response.json();
 }
 
-function renderPokemon (pokemon) {
+function renderImages (pokemon, pokemonEl) {
 	const imageForms = ['front_default', 'front_female'];
+	let imagesEl = pokemonEl.querySelector('.images');
+	if (!imagesEl) {
+		imagesEl = document.createElement('div');
+		imagesEl.classList.add('images');
+		pokemonEl.appendChild(imagesEl);
+	}
+	if (!pokemon.sprites) {
+		return imagesEl;
+	}
+	imageForms.forEach((imageForm) => {
+		if (!pokemon.sprites[imageForm]) {
+			return;
+		}
+		let imageEl = imagesEl.querySelector(`[data-form="${imageForm}"]`);
+		if (!imageEl) {
+			imageEl = document.createElement('img');
+			imageEl.setAttribute('data-form', imageForm);
+			imageEl.src = `${SERVER_URL}/sprites/${pokemon.id}/${imageForm}`;
+			imagesEl.appendChild(imageEl);
+		}
+	});
+	return imagesEl;
+}
+
+function renderOwnerships (userOwnership, rootEl) {
+	const forms = ['default', 'shiny', 'female', 'shiny_female'];
+	Object.keys(userOwnership).forEach((pokemon) => {
+		let pokemonEl = rootEl.querySelector(`[data-pokemon="${pokemon}"]`);
+		if (!pokemonEl) {
+			return;
+		}
+		pokemonEl.classList.add('owned');
+		forms.forEach((form) => {
+			if (userOwnership[pokemon].contains(form)) {
+				pokemonEl.classList.add(form);
+			}
+		});
+	});
+}
+
+function renderPokemon (pokemon) {
 	let el = document.querySelector(`[data-pokemon="${pokemon.name}"]`);
 	if (!el) {
 		el = document.createElement('div');
@@ -62,50 +98,25 @@ function renderPokemon (pokemon) {
 		nameEl.innerHTML = pokemon.name;
 	}
 
-	let imagesEl = el.querySelector('.images');
-	if (!imagesEl) {
-		imagesEl = document.createElement('div');
-		imagesEl.classList.add('images');
-		el.appendChild(imagesEl);
-	}
-	if (!pokemon.sprites) {
-		return el;
-	}
-	imageForms.forEach((imageForm) => {
-		if (!pokemon.sprites[imageForm]) {
-			return;
-		}
-		let imageEl = imagesEl.querySelector(`[data-form="${imageForm}"]`);
-		if (!imageEl) {
-			imageEl = document.createElement('img');
-			imageEl.setAttribute('data-form', imageForm);
-			imageEl.src = `${SERVER_URL}/sprites/${pokemon.id}/${imageForm}`;
-			imagesEl.appendChild(imageEl);
-		}
-	});
+	renderImages(pokemon, el);
+	renderOwnerships(pokemon, el);
+
 	return el;
 }
 
-function renderPokemons (pokemons, rootEl) {
-	pokemons.forEach((pokemon) => {
-		rootEl.appendChild(renderPokemon(pokemon));
-	});
-}
-
-function processOwnership (user) {
-	const forms = ['default', 'shiny', 'female', 'shiny_female'];
-	if (!user.ownership) {
-		return;
+function renderPokemons (pokemons) {
+	const appEl = document.querySelector('#app');
+	let pokemonsEl = appEl.querySelector('.pokemons');
+	if (!pokemonsEl) {
+		pokemonsEl = document.createElement('div');
+		pokemonsEl.classList.add('pokemons');
+		appEl.appendChild(pokemonsEl);
 	}
-	Object.keys(user.ownership).forEach((pokemon) => {
-		const pokemonEl = document.querySelector(`[data-pokemon="${pokemon}"]`);
-		pokemonEl.classList.add('owned');
-		forms.forEach((form) => {
-			if (pokemon[form]) {
-				pokemonEl.classList.add(form);
-			}
-		});
+
+	pokemons.forEach((pokemon) => {
+		pokemonsEl.appendChild(renderPokemon(pokemon));
 	});
+	return pokemonsEl;
 }
 
 async function getPokemons (numPokemons) {
@@ -123,14 +134,16 @@ async function start () {
 		getUser(userId)
 	]);
 
-	// results[0] is pokemons
-	renderPokemons(results[0], pokemonsEl);
+	let pokemons = results[0];
 
-	// if not userId (home page?)
+	let pokemonsEl = renderPokemons(pokemons);
+
+	// if no userId (homepage?)
 	if (!results[1]) {
 		return;
 	}
-	processOwnership(results[1]);
+
+	renderOwnerships(results[1].ownership, pokemonsEl);
 }
 
 start();
