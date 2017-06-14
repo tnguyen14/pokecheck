@@ -18,7 +18,7 @@ if (window.location.origin === 'https://lab.tridnguyen.com') {
 	SERVER_URL = homeConfig.SERVER_URL;
 	root = homeConfig.CLIENT_DOMAIN + '/pokecheck';
 }
-const NUM_POKEMONS = 10;
+const NUM_POKEMONS = 250;
 
 let router = new Navigo(root);
 
