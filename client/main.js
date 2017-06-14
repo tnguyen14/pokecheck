@@ -71,10 +71,20 @@ function renderPokemon (pokemon) {
 			return `<div class="image">
 					<img data-form=${imageForm}
 					src="${SERVER_URL}/sprites/${pokemon.id}/${imageForm}">
+					<div class="loader"></div>
 				</div>`;
 		}).join('')}
 		</div>
 	</div>`);
+
+	// @TODO this event listening can be easily managed with choo
+	Array.prototype.forEach.call(el.querySelectorAll('img'), (img) => {
+		img.addEventListener('click', updateOwn);
+	});
+	function updateOwn (e) {
+		let imageEl = e.target.parentNode;
+		imageEl.classList.toggle('loading');
+	}
 
 	return el;
 }

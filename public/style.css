@@ -32,8 +32,10 @@ body {
 
 .pokemon .image {
 	flex-grow: 1;
+	position: relative;
 }
 .pokemon img {
+	cursor: pointer;
 	filter: grayscale(100%);
 	max-width: 100%;
 	height: auto;
@@ -46,4 +48,38 @@ body {
 }
 .pokemon.has-female [data-form=front_female] {
 	filter: none;
+}
+
+.image .loader {
+	display: none;
+	width: 25px;
+	height: 25px;
+	position: absolute;
+	top: calc(50% - 12.5px);
+	left: calc(50% - 12.5px);
+}
+.image.loading .loader {
+	display: block;
+}
+.image.loading {
+	filter: opacity(.5);
+}
+
+/* copied from https://codepen.io/alanshortis/pen/eJLVXr */
+.loader {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    border: .25rem solid #a0a0a0;
+    border-top-color: #fefefe;
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
