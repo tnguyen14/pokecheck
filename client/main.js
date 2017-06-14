@@ -33,25 +33,53 @@ async function getUser (userId) {
 	return response.json();
 }
 
-function updateOwnerships (userOwnership, rootEl) {
-	const forms = ['default', 'shiny', 'female', 'shiny_female'];
-	Object.keys(userOwnership).forEach((pokemon) => {
-		let pokemonEl = rootEl.querySelector(`[data-pokemon="${pokemon}"]`);
-		if (!pokemonEl) {
-			return;
-		}
-		pokemonEl.classList.add('owned');
-		forms.forEach((form) => {
-			let clx = `has-${form}`;
-			if (userOwnership[pokemon].includes(form)) {
-				pokemonEl.classList.add(clx);
-			} else {
-				if (pokemonEl.classList.contains(clx)) {
-					pokemonEl.classList.remove(clx);
-				}
-			}
+async function imageClickHandler (pokemon, e) {
+	if (!user) {
+		return;
+	}
+	let imageEl = e.target.parentNode;
+	imageEl.classList.add('loading');
+	let imageForm = e.target.getAttribute('data-form');
+	if (!imageForm || imageForm.indexOf('_') === -1) {
+		throw new Error('Incorrect image form: ' + imageForm);
+	}
+	let form = imageForm.split('_')[1]; // front_female -> form is female
+	if (!form) {
+		throw new Error('No form found');
+	}
+	if (!user.ownership) {
+		user.ownership = {};
+	}
+	let prevOwnership = deepClone(user.ownership[pokemon.name]);
+	if (!prevOwnership) {
+		user.ownership[pokemon.name] = [form];
+	} else {
+		let hasForm = user.ownership[pokemon.name].findIndex((ownedForm) => {
+			return ownedForm === form;
 		});
-	});
+		// if form does not exist
+		if (hasForm === -1) {
+			user.ownership[pokemon.name].push(form);
+		} else {
+			user.ownership[pokemon.name].splice(hasForm, 1);
+		}
+	}
+	try {
+		await fetch(`${SERVER_URL}/users/${userId}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(user)
+		});
+	} catch (e) {
+		console.error(e);
+		// reverting changes
+		user.ownership[pokemon.name] = prevOwnership;
+	}
+	imageEl.classList.remove('loading');
+	// @TODO instead of querySelector again, use emit render in choo
+	renderPokemon(pokemon);
 }
 
 function renderPokemon (pokemon) {
@@ -61,7 +89,25 @@ function renderPokemon (pokemon) {
 		el = document.createElement('div');
 	}
 
-	morphdom(el, `<div class="pokemon" data-pokemon="${pokemon.name}">
+	function generateClassList (userOwnership) {
+		const forms = ['default', 'shiny', 'female', 'shiny_female'];
+		if (!userOwnership || !userOwnership[pokemon.name]) {
+			return [];
+		}
+		let classes = ['owned'];
+		forms.forEach((form) => {
+			if (userOwnership[pokemon.name].includes(form)) {
+				classes.push(`has-${form}`);
+			}
+		});
+		return classes;
+	}
+	let classList = ['pokemon'];
+	if (user && user.ownership) {
+		classList = classList.concat(generateClassList(user.ownership));
+	}
+
+	morphdom(el, `<div class="${classList.join(' ')}" data-pokemon="${pokemon.name}">
 		<div class="name">
 			${pokemon.name}
 		</div>
@@ -79,56 +125,6 @@ function renderPokemon (pokemon) {
 		</div>
 	</div>`);
 
-	// @TODO this event listening can be easily managed with choo
-	Array.prototype.forEach.call(el.querySelectorAll('img'), (img) => {
-		img.addEventListener('click', updateOwn);
-	});
-	async function updateOwn (e) {
-		if (!user) {
-			return;
-		}
-		let imageEl = e.target.parentNode;
-		imageEl.classList.add('loading');
-		let imageForm = e.target.getAttribute('data-form');
-		let form = imageForm.split('_')[1];
-		if (!form) {
-			throw new Error('No form found');
-		}
-		if (!user.ownership) {
-			user.ownership = {};
-		}
-		let prevOwnership = deepClone(user.ownership[pokemon.name]);
-		if (!prevOwnership) {
-			user.ownership[pokemon.name] = [form];
-		} else {
-			let hasForm = user.ownership[pokemon.name].findIndex((ownedForm) => {
-				return ownedForm === form;
-			});
-			// if form does not exist
-			if (hasForm === -1) {
-				user.ownership[pokemon.name].push(form);
-			} else {
-				user.ownership[pokemon.name].splice(hasForm, 1);
-			}
-		}
-		try {
-			await fetch(`${SERVER_URL}/users/${userId}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(user)
-			});
-		} catch (e) {
-			console.error(e);
-			// reverting changes
-			user.ownership[pokemon.name] = prevOwnership;
-		}
-		imageEl.classList.remove('loading');
-		// @TODO instead of querySelector again, use emit render in choo
-		updateOwnerships(user.ownership, document.querySelector('.pokemons'));
-	}
-
 	return el;
 }
 
@@ -142,7 +138,14 @@ function renderPokemons (pokemons) {
 	}
 
 	pokemons.forEach((pokemon) => {
-		pokemonsEl.appendChild(renderPokemon(pokemon));
+		let pokemonEl = renderPokemon(pokemon);
+		pokemonsEl.appendChild(pokemonEl);
+
+		// add event listeners
+		// @TODO this might be easily managed with choo
+		Array.prototype.forEach.call(pokemonEl.querySelectorAll('img'), (img) => {
+			img.addEventListener('click', imageClickHandler.bind(img, pokemon));
+		});
 	});
 	return pokemonsEl;
 }
@@ -166,23 +169,17 @@ async function start () {
 		.resolve();
 
 	let results = await Promise.all([
-		getPokemons(NUM_POKEMONS),
-		getUser(userId)
+		getUser(userId),
+		getPokemons(NUM_POKEMONS)
 	]);
 
-	let pokemons = results[0];
-
-	let pokemonsEl = renderPokemons(pokemons);
-
-	// if no userId (homepage?)
-	if (!results[1]) {
-		return;
+	if (results[0]) {
+		user = results[0];
 	}
 
-	user = results[1];
-	if (user.ownership) {
-		updateOwnerships(user.ownership, pokemonsEl);
-	}
+	let pokemons = results[1];
+
+	renderPokemons(pokemons);
 }
 
 start();
