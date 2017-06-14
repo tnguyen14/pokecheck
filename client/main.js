@@ -5,6 +5,7 @@ import defaultConfig from '../config/default.json';
 import productionConfig from '../config/production.json';
 import homeConfig from '../config/home.json';
 import Navigo from 'navigo';
+import morphdom from 'morphdom';
 
 let SERVER_URL = defaultConfig.SERVER_URL;
 let root = defaultConfig.CLIENT_DOMAIN;
@@ -30,33 +31,7 @@ async function getUser (userId) {
 	return response.json();
 }
 
-function renderImages (pokemon, pokemonEl) {
-	const imageForms = ['front_default', 'front_female'];
-	let imagesEl = pokemonEl.querySelector('.images');
-	if (!imagesEl) {
-		imagesEl = document.createElement('div');
-		imagesEl.classList.add('images');
-		pokemonEl.appendChild(imagesEl);
-	}
-	if (!pokemon.sprites) {
-		return imagesEl;
-	}
-	imageForms.forEach((imageForm) => {
-		if (!pokemon.sprites[imageForm]) {
-			return;
-		}
-		let imageEl = imagesEl.querySelector(`[data-form="${imageForm}"]`);
-		if (!imageEl) {
-			imageEl = document.createElement('img');
-			imageEl.setAttribute('data-form', imageForm);
-			imageEl.src = `${SERVER_URL}/sprites/${pokemon.id}/${imageForm}`;
-			imagesEl.appendChild(imageEl);
-		}
-	});
-	return imagesEl;
-}
-
-function renderOwnerships (userOwnership, rootEl) {
+function updateOwnerships (userOwnership, rootEl) {
 	const forms = ['default', 'shiny', 'female', 'shiny_female'];
 	Object.keys(userOwnership).forEach((pokemon) => {
 		let pokemonEl = rootEl.querySelector(`[data-pokemon="${pokemon}"]`);
@@ -78,25 +53,28 @@ function renderOwnerships (userOwnership, rootEl) {
 }
 
 function renderPokemon (pokemon) {
+	const imageForms = ['front_default', 'front_female'];
 	let el = document.querySelector(`[data-pokemon="${pokemon.name}"]`);
 	if (!el) {
 		el = document.createElement('div');
-		el.classList.add('pokemon');
-		el.setAttribute('data-pokemon', pokemon.name);
-	}
-	let nameEl = el.querySelector('.name');
-	if (!nameEl) {
-		nameEl = document.createElement('div');
-		nameEl.classList.add('name');
-		el.appendChild(nameEl);
-		nameEl.innerHTML = pokemon.name;
-	}
-	if (pokemon.name !== nameEl.innerHTML) {
-		nameEl.innerHTML = pokemon.name;
 	}
 
-	renderImages(pokemon, el);
-	renderOwnerships(pokemon, el);
+	morphdom(el, `<div class="pokemon" data-pokemon="${pokemon.name}">
+		<div class="name">
+			${pokemon.name}
+		</div>
+		<div class="images">
+		${imageForms.map((imageForm) => {
+			if (!pokemon.sprites || !pokemon.sprites[imageForm]) {
+				return;
+			}
+			return `<div class="image">
+					<img data-form=${imageForm}
+					src="${SERVER_URL}/sprites/${pokemon.id}/${imageForm}">
+				</div>`;
+		}).join('')}
+		</div>
+	</div>`);
 
 	return el;
 }
@@ -148,7 +126,7 @@ async function start () {
 		return;
 	}
 
-	renderOwnerships(results[1].ownership, pokemonsEl);
+	updateOwnerships(results[1].ownership, pokemonsEl);
 }
 
 start();
