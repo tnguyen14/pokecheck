@@ -6,9 +6,30 @@ body {
 
 .pokemons {
 	display: grid;
-	grid-template-columns: 20% 20% 20% 20% 20%;
+	grid-template-columns: 100%;
 	width: 90%;
 	margin: 0 auto;
+}
+@media (min-width: 28em) {
+	.pokemons {
+		grid-template-columns: 50% 50%;
+	}
+}
+@media (min-width: 50em) {
+	.pokemons {
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+}
+@media (min-width: 62.5em) {
+	.pokemons {
+		grid-template-columns: 25% 25% 25% 25%;
+	}
+}
+
+@media (min-width: 80em) {
+	.pokemons {
+		grid-template-columns: 20% 20% 20% 20% 20%;
+	}
 }
 
 .pokemon {
