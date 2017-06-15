@@ -44,7 +44,7 @@ app.get('/pokemon/:id', async (req, res) => {
 	} catch (e) {
 		if (e.error !== 'not_found') {
 			console.error(e);
-			res.setStatus(400).json(e);
+			res.status(400).json(e);
 			return;
 		}
 		let response = await fetch(POKEAPI_URL + 'pokemon/' + req.params.id);
