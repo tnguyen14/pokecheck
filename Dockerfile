@@ -9,6 +9,7 @@ WORKDIR /src
 RUN npm install
 
 ADD server /src/server
+ADD config /src/config
 
 EXPOSE 3000
 
