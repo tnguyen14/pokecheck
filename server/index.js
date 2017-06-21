@@ -58,6 +58,10 @@ app.get('/pokemon/:id', async (req, res) => {
 			}));
 		} catch (e) {
 			console.error(e);
+			// if unable to parse response, print response status text
+			if (e.message.startsWith('invalid json')) {
+				console.error(response.statusText);
+			}
 			return res.status(404).json(e);
 		}
 	}
