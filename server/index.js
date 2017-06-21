@@ -40,30 +40,33 @@ app.get('/pokemon/:id', async (req, res) => {
 	let pokemon;
 	try {
 		pokemon = await db.get(req.params.id);
-		res.json(pokemon);
 	} catch (e) {
 		if (e.error !== 'not_found') {
 			console.error(e);
 			res.status(400).json(e);
 			return;
 		}
-		let response = await fetch(POKEAPI_URL + 'pokemon/' + req.params.id);
-		pokemon = await response.json();
-		if (!pokemon) {
-			return res.send(404).json({
-				error: `${req.params.id} is not found`
-			});
-		}
+	}
+	if (!pokemon) {
+		let response;
 		try {
+			response = await fetch(POKEAPI_URL + 'pokemon/' + req.params.id);
+			pokemon = await response.json();
 			await db.put(Object.assign({}, pokemon, {
 				// _id needs to be a string
 				_id: pokemon.id.toString()
 			}));
 		} catch (e) {
 			console.error(e);
+			return res.status(404).json(e);
 		}
-		res.json(pokemon);
 	}
+	if (!pokemon) {
+		return res.status(404).json({
+			error: `${req.params.id} is not found`
+		});
+	}
+	res.json(pokemon);
 	await saveSprites(pokemon);
 });
 
