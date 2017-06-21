@@ -4,5 +4,8 @@
   },
   "log": {
     "file": "./db/log.txt"
+  },
+  "httpd": {
+    "bind_address": "0.0.0.0"
   }
 }
