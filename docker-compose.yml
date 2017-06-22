@@ -4,6 +4,9 @@ services:
     build: .
     links:
      - db
+    environment:
+     - NODE_CONFIG: >
+        {"DATABASE_URL":"http://db:5984"}
 
   client:
     build:
