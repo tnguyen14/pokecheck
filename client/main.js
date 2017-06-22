@@ -33,17 +33,13 @@ async function getUser (userId) {
 	return response.json();
 }
 
-async function imageClickHandler (pokemon, e) {
+async function formClickHandler (pokemon, e) {
 	if (!user) {
 		return;
 	}
-	let imageEl = e.target.parentNode;
-	imageEl.classList.add('loading');
-	let imageForm = e.target.getAttribute('data-form');
-	if (!imageForm || imageForm.indexOf('_') === -1) {
-		throw new Error('Incorrect image form: ' + imageForm);
-	}
-	let form = imageForm.split('_')[1]; // front_female -> form is female
+	let formEl = e.target.parentNode;
+	formEl.classList.add('loading');
+	let form = e.target.getAttribute('data-form');
 	if (!form) {
 		throw new Error('No form found');
 	}
@@ -77,20 +73,19 @@ async function imageClickHandler (pokemon, e) {
 		// reverting changes
 		user.ownership[pokemon.name] = prevOwnership;
 	}
-	imageEl.classList.remove('loading');
+	formEl.classList.remove('loading');
 	// @TODO instead of querySelector again, use emit render in choo
 	renderPokemon(pokemon);
 }
 
 function renderPokemon (pokemon) {
-	const imageForms = ['front_default', 'front_female'];
+	const forms = ['default', 'female'];
 	let el = document.querySelector(`[data-pokemon="${pokemon.name}"]`);
 	if (!el) {
 		el = document.createElement('div');
 	}
 
 	function generateClassList (userOwnership) {
-		const forms = ['default', 'shiny', 'female', 'shiny_female'];
 		if (!userOwnership || !userOwnership[pokemon.name]) {
 			return [];
 		}
@@ -98,6 +93,10 @@ function renderPokemon (pokemon) {
 		forms.forEach((form) => {
 			if (userOwnership[pokemon.name].includes(form)) {
 				classes.push(`has-${form}`);
+			}
+			// only way to tell if female form exists is to check for sprites
+			if (pokemon.sprites['front_' + form]) {
+				classes.push(`has-sprite-${form}`);
 			}
 		});
 		return classes;
@@ -114,17 +113,23 @@ function renderPokemon (pokemon) {
 		<div class="name">
 			${pokemon.name}
 		</div>
-		<div class="images">
-		${imageForms.map((imageForm) => {
-			if (!pokemon.sprites || !pokemon.sprites[imageForm]) {
-				return;
-			}
-			return `<div class="image">
-					<img data-form=${imageForm}
-					src="${SERVER_URL}/sprites/${pokemon.id}/${imageForm}">
-					<div class="loader"></div>
-				</div>`;
-		}).join('')}
+		<div class="content-container">
+			<div class="forms">
+			${forms.map((form) => {
+				return `<div class="form" data-form=${form}>
+						<div class="loader"></div>
+					</div>`;
+			}).join('')}
+			</div>
+			<div class="images">
+			${forms.map((form) => {
+				if (!pokemon.sprites || !pokemon.sprites['front_' + form]) {
+					return;
+				}
+				return `<img data-form=${form}
+						src="${SERVER_URL}/sprites/${pokemon.id}/front_${form}">`;
+			}).join('')}
+			</div>
 		</div>
 	</div>`);
 
@@ -154,8 +159,14 @@ async function getPokemons (numPokemons) {
 
 		// add event listeners
 		// @TODO this might be easily managed with choo
-		Array.prototype.forEach.call(pokemonEl.querySelectorAll('img'), (img) => {
-			img.addEventListener('click', imageClickHandler.bind(img, pokemon));
+		Array.prototype.forEach.call(pokemonEl.querySelectorAll('.form'), (form) => {
+			form.addEventListener('click', formClickHandler.bind(form, pokemon));
+			form.addEventListener('mouseenter', () => {
+				pokemonEl.classList.add('hover-' + form.getAttribute('data-form'));
+			});
+			form.addEventListener('mouseleave', () => {
+				pokemonEl.classList.remove('hover-' + form.getAttribute('data-form'));
+			});
 		});
 	}, Promise.resolve());
 }

@@ -1,5 +1,13 @@
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
+html {
+	box-sizing: border-box;
+}
+
+* {
+	box-sizing: inherit;
+}
+
 body {
 	font-family: 'Source Sans Pro', sans-serif;
 }
@@ -46,20 +54,58 @@ body {
 	text-transform: capitalize;
 }
 
-.pokemon .images {
-	display: flex;
-	padding: 1em 0;
-}
-
-.pokemon .image {
-	flex-grow: 1;
+.pokemon .content-container {
 	position: relative;
 }
+
+.pokemon .forms {
+	display: flex;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.pokemon .form {
+	cursor: pointer;
+	width: 50%;
+	position: relative;
+}
+.pokemon .form::before {
+	display: block;
+	margin-top: 2em;
+}
+.pokemon .form[data-form=default]::before {
+	content: "♂";
+	margin-left: -1em;
+}
+.pokemon .form[data-form=female]::before {
+	content: "♀";
+	margin-left: 1em;
+}
+.pokemon .form[data-form=default]:hover {
+	background-color: rgba(30, 93, 194, .6);
+}
+.pokemon .form[data-form=female]:hover {
+	background-color: rgba(201, 22, 25, .7);
+}
+
 .pokemon img {
 	cursor: pointer;
+	display: block;
 	filter: grayscale(100%);
+	margin: 0 auto;
 	max-width: 100%;
 	height: auto;
+}
+/* hide female by default */
+.pokemon img[data-form=female] {
+	display: none;
+}
+.pokemon.hover-female.has-sprite-female img[data-form=default] {
+	display: none;
+}
+.pokemon.hover-female img[data-form=female] {
+	display: block;
 }
 .pokemon img:hover {
 	filter: grayscale(50%);
@@ -67,14 +113,15 @@ body {
 .pokemon.owned img {
 	filter: sepia(100%);
 }
-.pokemon.has-default [data-form=front_default] {
-	filter: none;
+/* not using filter: none to keep the image on top layer */
+.pokemon.has-default img[data-form=default] {
+	filter: grayscale(0) sepia(0);
 }
-.pokemon.has-female [data-form=front_female] {
-	filter: none;
+.pokemon.has-female img[data-form=female] {
+	filter: grayscale(0) sepia(0);
 }
 
-.image .loader {
+.form .loader {
 	display: none;
 	width: 25px;
 	height: 25px;
@@ -82,28 +129,28 @@ body {
 	top: calc(50% - 12.5px);
 	left: calc(50% - 12.5px);
 }
-.image.loading .loader {
+.form.loading .loader {
 	display: block;
 }
-.image.loading {
+.form.loading {
 	filter: opacity(.5);
 }
 
 /* copied from https://codepen.io/alanshortis/pen/eJLVXr */
 .loader {
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    border: .25rem solid #a0a0a0;
-    border-top-color: #fefefe;
-    animation: spin 1s infinite linear;
+	border-radius: 50%;
+	width: 25px;
+	height: 25px;
+	border: .25rem solid #a0a0a0;
+	border-top-color: #fefefe;
+	animation: spin 1s infinite linear;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
